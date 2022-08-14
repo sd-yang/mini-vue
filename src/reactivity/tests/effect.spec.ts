@@ -59,8 +59,13 @@ describe('effect', () => {
     stop(runner);
     obj.count = 2;
     expect(dummy).toBe(1);
+    obj.count++;
+    // count++ 操作会触发 track，造成依赖再次被收集，然后再触发 trigger，stop 要注意这点
+    expect(dummy).toBe(1);
     runner();
-    expect(dummy).toBe(2);
+    expect(dummy).toBe(3);
+    obj.count++;
+    expect(dummy).toBe(3);
   });
 
   it('onStop', () => {

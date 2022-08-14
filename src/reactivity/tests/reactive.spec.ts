@@ -1,4 +1,4 @@
-import { reactive } from '../reactive';
+import { isReactive, reactive } from '../reactive';
 
 describe('reactive', () => {
   it('happy path', () => {
@@ -9,5 +9,7 @@ describe('reactive', () => {
     expect(data.count).toBe(1);
     data.count++;
     expect(data.count).toBe(2);
+    expect(isReactive(data)).toBe(true);
+    expect(isReactive(obj)).toBe(false);
   });
 });

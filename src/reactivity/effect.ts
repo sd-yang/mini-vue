@@ -1,18 +1,29 @@
 import { extend } from './../shared/index';
+
+let activeEffect;
+let shouldTrack;
+const targetMap = new Map();
+
 class ReactiveEffect {
   private _fn: any;
-  deps = [];
+  deps = new Set();
   active = true;
   onStop?: () => void;
-  // 通过声明 public 可以被外部调用
   constructor(fn, public scheduler?) {
     this._fn = fn;
   }
 
   run() {
     // 将实例给到 activeEffect，用来进行依赖收集
+    if (!this.active) {
+      // 在 stop 调用之后，直接调用 runner 的话，会直接执行 fn
+      return this._fn();
+    }
     activeEffect = this;
-    return this._fn();
+    shouldTrack = true; // 在正常情况 active 下，每次都可以执行依赖收集
+    const results = this._fn(); // 正常情况下，fn 执行，读取到 reactive 的值会触发 track，此时 shouldTrack 为 true，可以 get set
+    shouldTrack = false; // 进行关闭，之后如果 stop 执行，将不进行依赖收集了。此时，reactive 的 get set 就不会触发收集和执行 run 了
+    return results;
   }
 
   stop() {
@@ -31,16 +42,16 @@ function cleanupEffect(effect) {
   effect.deps.forEach((dep: any) => {
     dep.delete(effect);
   });
+  effect.deps.clear();
 }
 
-// get 拦截的时候进行依赖收集，根据 target 使用 Map 进行收集
-const targetMap = new Map();
 export const track = (target, key) => {
+  if (!isTracking()) return;
+
   // target -> key -> dep
-  // 从收集到的容器中，根据 key 获取具体的值
   let depsMap = targetMap.get(target);
   if (!depsMap) {
-    depsMap = new Map(); // 创建一个 Map 去存储对象的 key 值
+    depsMap = new Map();
     targetMap.set(target, depsMap);
   }
 
@@ -49,15 +60,20 @@ export const track = (target, key) => {
     dep = new Set();
     depsMap.set(key, dep);
   }
-  if (!activeEffect) return;
-  
+
+  if (dep.has(activeEffect)) return;
   dep.add(activeEffect);
-  activeEffect.deps.push(dep);
+  activeEffect.deps.add(dep);
 };
+
+function isTracking() {
+  return shouldTrack && activeEffect !== undefined;
+}
 
 // 依赖改变的时候，要自动进行更新
 export const trigger = (target, key) => {
   const depsMap = targetMap.get(target);
+  if (!depsMap) return;
   const deps = depsMap.get(key);
   for (const effect of deps) {
     if (effect.scheduler) {
@@ -68,7 +84,6 @@ export const trigger = (target, key) => {
   }
 };
 
-let activeEffect;
 export const effect = (fn, options: any = {}) => {
   const _effect = new ReactiveEffect(fn, options.scheduler);
   extend(_effect, options);

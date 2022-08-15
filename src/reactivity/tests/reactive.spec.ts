@@ -1,4 +1,4 @@
-import { isReactive, reactive } from '../reactive';
+import { isReactive, reactive, isProxy } from '../reactive';
 
 describe('reactive', () => {
   it('happy path', () => {
@@ -14,5 +14,8 @@ describe('reactive', () => {
     // 嵌套对象
     expect(isReactive(data.data)).toBe(true);
     expect(isReactive(data.data.list)).toBe(true);
+
+    expect(isProxy(data)).toBe(true);
+    expect(isProxy(data.data.list)).toBe(true);
   });
 });

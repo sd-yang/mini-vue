@@ -1,19 +1,28 @@
+import { isObject, extend } from '../shared';
 import { track, trigger } from './effect';
-import { ReactiveFlags } from './reactive';
+import { ReactiveFlags, reactive, readonly } from './reactive';
 
 const get = createGetter();
 const set = createSetter();
 const readonlyGet = createGetter(true);
+const shallowReadonlyGet = createGetter(true, true);
 
-function createGetter(readonly = false) {
+function createGetter(isReadonly = false, isShallow = false) {
   return function (target, key) {
     if (key === ReactiveFlags.IS_REACTIVE) {
-      return !readonly;
+      return !isReadonly;
     } else if (key === ReactiveFlags.IS_READONLY) {
-      return readonly;
+      return isReadonly;
     }
+
     const res = Reflect.get(target, key);
-    if (!readonly) {
+
+    // 嵌套结构的处理转换
+    if (!isShallow && isObject(res)) {
+      return isReadonly ? readonly(res) : reactive(res);
+    }
+
+    if (!isReadonly) {
       track(target, key);
     }
     return res;
@@ -40,3 +49,7 @@ export const readonlyHandles = {
     return true;
   },
 };
+
+export const shallowReadonlyHandles = extend({}, readonlyHandles, {
+  get: shallowReadonlyGet,
+});

@@ -4,4 +4,10 @@
 
 ## API实现
 
-1. - [ ] reactive
+1. - [x] reactive
+2. - [x] readonly
+3. - [x] shallowReadonly
+4. - [x] isReactive
+5. - [x] isReadonly
+6. - [x] isProxy
+7. - [x] ref

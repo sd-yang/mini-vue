@@ -1,5 +1,5 @@
 import { effect } from '../effect';
-import { ref } from '../ref';
+import { isRef, proxyRef, ref, unRef } from '../ref';
 describe('ref', () => {
   it('happy path', () => {
     let data = ref(1);
@@ -24,7 +24,7 @@ describe('ref', () => {
   });
 
   it('object can use ref', () => {
-    const obj = { foo : 1 };
+    const obj = { foo: 1 };
     const data = ref(obj);
     expect(data.value.foo).toBe(1);
 
@@ -35,5 +35,37 @@ describe('ref', () => {
     expect(count).toBe(1);
     data.value.foo = 2;
     expect(count).toBe(2);
-  })
+  });
+
+  it('isRef', () => {
+    let data = ref(1);
+    expect(isRef(data)).toBe(true);
+  });
+
+  it('unRef', () => {
+    let count = 1;
+    let data = ref(count);
+    expect(unRef(data)).toEqual(count);
+    expect(unRef(1)).toEqual(1);
+  });
+
+  it('proxyRef', () => {
+    const user = {
+      age: ref(10),
+      name: 'Hong',
+    };
+
+    const proxyUser = proxyRef(user);
+    expect(user.age.value).toBe(10);
+    expect(proxyUser.age).toBe(10);
+    expect(proxyUser.name).toBe('Hong');
+
+    proxyUser.age = 20;
+    expect(proxyUser.age).toBe(20);
+    expect(user.age.value).toBe(20);
+
+    proxyUser.age = ref(10);
+    expect(proxyUser.age).toBe(10);
+    expect(user.age.value).toBe(10);
+  });
 });

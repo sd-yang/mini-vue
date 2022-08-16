@@ -5,9 +5,15 @@
 ## API实现
 
 1. - [x] reactive
-2. - [x] readonly
-3. - [x] shallowReadonly
-4. - [x] isReactive
-5. - [x] isReadonly
-6. - [x] isProxy
-7. - [x] ref
+2. - [x] effect
+   1. - [x] stop
+   2. - [x] onStop
+   3. - [x] scheduler
+3. - [x] readonly
+4. - [x] shallowReadonly
+5. - [x] isReactive
+6. - [x] isReadonly
+7. - [x] isProxy
+8. - [x] ref
+9. - [x] isRef
+10. - [x] unRef

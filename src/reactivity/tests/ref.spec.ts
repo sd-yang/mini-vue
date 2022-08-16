@@ -55,6 +55,7 @@ describe('ref', () => {
       name: 'Hong',
     };
 
+    // 可以不通过 .value 的形式来直接获取
     const proxyUser = proxyRef(user);
     expect(user.age.value).toBe(10);
     expect(proxyUser.age).toBe(10);

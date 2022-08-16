@@ -17,3 +17,5 @@
 8. - [x] ref
 9. - [x] isRef
 10. - [x] unRef
+11. - [x] proxyRef
+12. - [x] computed

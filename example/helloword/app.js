@@ -8,6 +8,6 @@ export const App = {
   },
 
   render() {
-    return h('div', 'hi, ' + this.msg);
+    return h('div', { class: 'red' }, 'hi, vue' + this.msg);
   },
 };

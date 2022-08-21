@@ -9,7 +9,7 @@ export function render(vnode, container) {
 function patch(vnode, container) {
   const { shapeFlag } = vnode;
   // 组件类型元素的处理
-  if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT)) {
+  if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
     processComponent(vnode, container);
   } else if (shapeFlag & ShapeFlags.ELEMENT) {
     processElement(vnode, container);

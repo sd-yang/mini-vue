@@ -46,8 +46,8 @@ function mountElement(vnode: any, container: any) {
     } else {
       el.setAttribute(key, val);
     }
-    }
-    
+  }
+
   container.append(el);
 }
 

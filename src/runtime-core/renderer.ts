@@ -1,3 +1,4 @@
+import { Fragment, Text } from './vnode';
 import { ShapeFlags } from '../shared/ShapeFlags';
 import { createComponentInstance, setupComponent } from './component';
 
@@ -7,13 +8,32 @@ export function render(vnode, container) {
 
 // 处理组件
 function patch(vnode, container) {
-  const { shapeFlag } = vnode;
+  const { shapeFlag, type } = vnode;
   // 组件类型元素的处理
-  if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-    processComponent(vnode, container);
-  } else if (shapeFlag & ShapeFlags.ELEMENT) {
-    processElement(vnode, container);
+  switch (type) {
+    case Fragment:
+      processFragment(vnode, container);
+      break;
+    case Text:
+      processText(vnode, container);
+      break;
+    default:
+      if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+        processComponent(vnode, container);
+      } else if (shapeFlag & ShapeFlags.ELEMENT) {
+        processElement(vnode, container);
+      }
   }
+}
+
+function processText(vnode, container) {
+  const { children } = vnode;
+  const textNode = (vnode.el = document.createTextNode(children));
+  container.append(textNode);
+}
+
+function processFragment(vnode: any, container) {
+  mountComponent(vnode, container);
 }
 
 // 处理解析出来的元素类型
